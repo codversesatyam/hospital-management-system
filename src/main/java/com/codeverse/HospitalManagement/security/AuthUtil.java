@@ -22,7 +22,7 @@ public class AuthUtil {
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    private String generateAccessToken(User user){
+    public String generateAccessToken(User user){
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("userId" , user.getId().toString())

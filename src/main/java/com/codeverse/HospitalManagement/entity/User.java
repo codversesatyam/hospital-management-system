@@ -1,10 +1,11 @@
 package com.codeverse.HospitalManagement.entity;
 
 import com.codeverse.HospitalManagement.Enum.Role;
-
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -22,13 +23,13 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Username is required")
-    @JoinColumn(unique = true)
+    @Column(nullable = false, unique = true)
     private String userName;
 
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @NotNull(message = "Password is required")
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -36,11 +37,23 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(() -> "ROLE_" + role.name());
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return this.userName;
     }
+
+    @Override
+    public boolean isAccountNonExpired() { return true; }
+
+    @Override
+    public boolean isAccountNonLocked() { return true; }
+
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
+
+    @Override
+    public boolean isEnabled() { return true; }
 }

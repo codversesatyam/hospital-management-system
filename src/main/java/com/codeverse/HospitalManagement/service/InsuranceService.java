@@ -9,26 +9,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Service
-@RequiredArgsConstructor
-public class InsuranceService {
 
-    private final InsuranceRepository insuranceRepository;
+public interface InsuranceService {
 
-    private final PatientRepository patientRepository;
+    Patient assignedInsuranceToPatient(Insurance insurance , Long patientId);
 
-    @Transactional
-    public Patient assignInsuranceToPatient(Insurance insurance , Long id){
-         Patient patient = patientRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Patient not found with id : " + id)
-        );
-
-         patient.setInsurance(insurance);
-         insurance.setPatient(patient);
-
-
-         return patient;
-
-    }
 
 }

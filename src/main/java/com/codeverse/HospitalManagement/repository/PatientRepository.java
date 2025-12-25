@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
-    Patient findByEmail(String email); // safer with Optional
+    Optional<Patient> findByEmail(String email);
 }

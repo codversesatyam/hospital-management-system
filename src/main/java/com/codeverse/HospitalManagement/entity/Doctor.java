@@ -2,6 +2,7 @@ package com.codeverse.HospitalManagement.entity;
 
 import java.util.*;
 
+import ch.qos.logback.core.Appender;
 import com.codeverse.HospitalManagement.entity.Department;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,14 +10,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@Getter
+@Setter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 public class Doctor {
 
     @Id
@@ -36,4 +36,7 @@ public class Doctor {
 
     @ManyToMany(mappedBy = "doctors")
     private Set<Department> departments = new HashSet<>();
+
+    public void setDepartment(Department department) {
+    }
 }

@@ -66,10 +66,9 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public PatientResponseDTO getPatientByEmail(String email) {
-        Patient patient = patientRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UserNotFoundException("Patient not found with email " + email)
-                );
+        Patient patient = patientRepository.findByEmail(email).orElseThrow(() ->
+                new UserNotFoundException("Patient not found with email " + email)
+        );
         return mapToResponseDTO(patient);
     }
 
@@ -88,6 +87,6 @@ public class PatientServiceImpl implements PatientService {
         dto.setName(patient.getName());
         dto.setEmail(patient.getEmail());
         return dto;
-    }l
+    }
 }
 

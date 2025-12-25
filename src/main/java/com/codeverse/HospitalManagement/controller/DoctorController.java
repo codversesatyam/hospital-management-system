@@ -1,6 +1,8 @@
 package com.codeverse.HospitalManagement.controller;
 
 
+import com.codeverse.HospitalManagement.dto.DoctorRequestDTO;
+import com.codeverse.HospitalManagement.dto.DoctorResponseDTO;
 import com.codeverse.HospitalManagement.entity.Doctor;
 import com.codeverse.HospitalManagement.service.DoctorService;
 import lombok.RequiredArgsConstructor;
@@ -18,17 +20,17 @@ public class DoctorController {
     private final DoctorService doctorService;
 
     @PostMapping
-    public ResponseEntity<Doctor> createDoctor(@RequestBody Doctor doctor){
-        return ResponseEntity.ok(doctorService.createDoctor(doctor));
+    public ResponseEntity<DoctorResponseDTO> createDoctor(@RequestBody DoctorRequestDTO doctorRequestDTO){
+        return ResponseEntity.ok(doctorService.createDoctor(doctorRequestDTO));
     }
 
     @GetMapping
-    public ResponseEntity<List<Doctor>> getAllDoctors(){
+    public ResponseEntity<List<DoctorResponseDTO>> getAllDoctors(){
         return ResponseEntity.ok(doctorService.getAllDoctors());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Doctor> getDoctorById(@PathVariable Long id) {
+    public ResponseEntity<DoctorResponseDTO> getDoctorById(@PathVariable Long id) {
          return ResponseEntity.ok(doctorService.getDoctorById(id));
     }
     @PutMapping("/{id}")
@@ -46,7 +48,7 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.getDoctorByEmail(email));
     }
     @GetMapping("/specialization/{specialization}")
-    public ResponseEntity<List<Doctor>> getDoctorBySpecialization(@PathVariable String specialization){
+    public ResponseEntity<List<DoctorResponseDTO>> getDoctorBySpecialization(@PathVariable String specialization){
         return ResponseEntity.ok(doctorService.getDoctorBySpecialization(specialization));
     }
 }
