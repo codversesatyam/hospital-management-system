@@ -8,4 +8,7 @@ public interface UserService {
 
     User getUserById(Long id);
 
+    User getUserByUserName(String userName);
+
+
 }

@@ -15,7 +15,7 @@ import java.util.Date;
 @Component
 public class AuthUtil {
 
-    @Value("${jwt.secretKey}")
+    @Value("${jwt.secretkey}")
     private String jwtSecretKey;
 
     private SecretKey secretKey(){

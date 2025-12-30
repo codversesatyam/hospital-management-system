@@ -12,10 +12,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
-import java.util.logging.Handler;
 
 @Component
 @Slf4j
@@ -23,43 +21,71 @@ import java.util.logging.Handler;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
-
     private final AuthUtil authUtil;
 
-    private final HandlerExceptionResolver handlerExceptionResolver;
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        if (path.startsWith("/auth")
+                || path.startsWith("/oauth2")
+                || path.startsWith("/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String authHeader = request.getHeader("Authorization");
+
+        // No Authorization
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
-            log.info("Incoming Request : {}", request.getRequestURI());
-
-            final String requestTokenHeader = request.getHeader("Authorization");
-            if (requestTokenHeader == null || !requestTokenHeader.startsWith("Bearer ")) {
-
-                filterChain.doFilter(request, response);
-
-                return;
-
-            }
-
-            String token = requestTokenHeader.split("Bearer ")[1];
+            String token = authHeader.substring(7);
             String userName = authUtil.getUserNameFromToken(token);
 
-            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (userName != null &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                User user = userRepository.findByUserName(userName).orElseThrow();
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                        new UsernamePasswordAuthenticationToken(user,
-                                 null,
-                                user.getAuthorities());
+                User user = userRepository.findByUserName(userName)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
 
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                                user,
+                                null,
+                                user.getAuthorities()
+                        );
 
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
 
             filterChain.doFilter(request, response);
 
-        } catch (Exception ex){
-            handlerExceptionResolver.resolveException(request , response, null, ex);
+        } catch (Exception ex) {
+
+            log.error("Invalid JWT Token", ex);
+
+            response.reset(); // 🔥 VERY IMPORTANT
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+
+            response.getWriter().write("""
+                {
+                  "error": "Invalid or expired JWT token",
+                  "status": 401
+                }
+                """);
+
+            return;
         }
     }
 }
+

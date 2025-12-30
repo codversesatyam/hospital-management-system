@@ -4,9 +4,12 @@ import com.codeverse.HospitalManagement.Exception.UserNotFoundException;
 import com.codeverse.HospitalManagement.dto.PatientRequestDTO;
 import com.codeverse.HospitalManagement.dto.PatientResponseDTO;
 import com.codeverse.HospitalManagement.entity.Patient;
+import com.codeverse.HospitalManagement.entity.User;
 import com.codeverse.HospitalManagement.repository.PatientRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +23,18 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public PatientResponseDTO createPatient(PatientRequestDTO dto) {
+
+        // 🔑 Get logged-in user from JWT
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        User user = (User) authentication.getPrincipal();
+
         Patient patient = mapToEntity(dto);
+
+        // 🔴 THIS WAS MISSING
+        patient.setUser(user);
+
         Patient saved = patientRepository.save(patient);
         return mapToResponseDTO(saved);
     }
@@ -51,8 +65,11 @@ public class PatientServiceImpl implements PatientService {
 
         patient.setName(dto.getName());
         patient.setEmail(dto.getEmail());
+        patient.setBirthDate(dto.getBirthDate());
+        patient.setGender(dto.getGender());
+        patient.setBloodGroup(dto.getBloodGroup());
 
-        return mapToResponseDTO(patientRepository.save(patient));
+        return mapToResponseDTO(patient);
     }
 
     @Override
@@ -66,18 +83,22 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public PatientResponseDTO getPatientByEmail(String email) {
-        Patient patient = patientRepository.findByEmail(email).orElseThrow(() ->
-                new UserNotFoundException("Patient not found with email " + email)
-        );
+        Patient patient = patientRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Patient not found with email " + email)
+                );
         return mapToResponseDTO(patient);
     }
-
 
 
     private Patient mapToEntity(PatientRequestDTO dto) {
         Patient patient = new Patient();
         patient.setName(dto.getName());
         patient.setEmail(dto.getEmail());
+        patient.setBirthDate(dto.getBirthDate());
+        patient.setGender(dto.getGender());
+        patient.setBloodGroup(dto.getBloodGroup());
+        patient.setPhone(dto.getPhone());
         return patient;
     }
 
@@ -86,6 +107,10 @@ public class PatientServiceImpl implements PatientService {
         dto.setId(patient.getId());
         dto.setName(patient.getName());
         dto.setEmail(patient.getEmail());
+        dto.setBirthDate(patient.getBirthDate());
+        dto.setGender(patient.getGender());
+        dto.setBloodGroup(patient.getBloodGroup());
+        dto.setPhone(patient.getPhone());
         return dto;
     }
 }
